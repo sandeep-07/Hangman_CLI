@@ -1,6 +1,7 @@
 import string
 from words import choose_word
 from images import IMAGES
+import random
 '''
 Important instruction
 * function and variable name snake_case -> is_prime
@@ -15,6 +16,9 @@ def is_word_guessed(secret_word, letters_guessed):
       return True (if user guess the world correctly )
       return False (wrong selection)
     '''
+    print(secret_word,letters_guessed)
+    if(len(secret_word)==len(letters_guessed)):
+        return True
     return False
 
 # if you want to test this function please call function -> get_guessed_word("kindness", [k, n, d])
@@ -60,6 +64,12 @@ def get_available_letters(letters_guessed):
 def showMan(rem):
     print(IMAGES[rem])
 
+def isValid(letter):
+
+    if(len(letter)==1 and letter.islower()):
+        return True
+    return False
+
 def hangman(secret_word):
     '''
     secret_word (string) : secret word to guessed by the user.
@@ -78,13 +88,11 @@ def hangman(secret_word):
     print("Welcome to the game, Hangman!")
     print("I am thinking of a word that is {} letters long.".format(
         str(len(secret_word))), end='\n\n')
-
     letters_guessed = []
-
-    
-
     t=1
     remaining_lives=8
+    c=0
+    hint_used=False
     while(t==1):
         print("{} lives left".format(remaining_lives))
         if(remaining_lives>0):
@@ -92,8 +100,27 @@ def hangman(secret_word):
             print("Available letters: {} ".format(available_letters))
             guess = input("Please guess a letter: ")
             letter = guess.lower()
+            if(letter!="hint" and not isValid(letter)):
+                print("Invalid input..Enter again")
+                continue
+            if(letter=="hint"):
+                if hint_used==False:
+                    hint_used=True
+                    lst=[]
+                    print("hint worked")
+                    print(available_letters)
+                    for i in secret_word:
+                        lst.append(i)
+                    print(letters_guessed)
+                    # secret_word-letters_guessed
+                    li_dif = [i for i in lst + letters_guessed if i not in lst or i not in letters_guessed]
+                    letter=random.choice(li_dif)
 
+                else:
+                    print("Sorry buddy you have used your hint")
+                    continue
             if letter in secret_word:
+                c+=1
                 letters_guessed.append(letter)
                 print("Good guess: {} ".format(
                     get_guessed_word(secret_word, letters_guessed)))
@@ -103,11 +130,10 @@ def hangman(secret_word):
             else:
                 remaining_lives-=1
                 # 7->0
-                showMan(8-(remaining_lives
-                +1))
+                showMan(8-(remaining_lives+1))
                 print("Oops! That letter is not in my word: {} ".format(
                     get_guessed_word(secret_word, letters_guessed)))
-                letters_guessed.append(letter)
+                
                 
         else:
             t=0
